@@ -17,7 +17,11 @@ func InsertDocuments(datasetName string, documents anonmodel.Documents, continuo
 		return err
 	}
 
-	convertedDocs := documents.Convert(continuous)
+	table, err := MakeTypeConversionTable(datasetName)
+	if err != nil {
+		return err
+	}
+	convertedDocs := documents.Convert(continuous, table)
 
 	bulk := data.Bulk()
 	bulk.Unordered()
