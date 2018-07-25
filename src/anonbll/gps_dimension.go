@@ -1,72 +1,155 @@
 package anonbll
 
-
 import (
-	"fmt"
 	"anondb"
 	"anonmodel"
-	"math"
 )
 
-type GPSDimension struct {
+type gpsDimension struct {
 	anonCollectionName string
 	fieldName          string
-	originalArea      anonmodel.GPSArea
-	currentArea       anonmodel.GPSArea
+	originalRange      anonmodel.GPSArea
+	currentRange       anonmodel.GPSArea
 }
 
-func (d *GPSDimension) initialize(anonCollectionName string, fieldName string) {
+func (d *gpsDimension) initialize(anonCollectionName string, fieldName string) {
 	d.anonCollectionName = anonCollectionName
 	d.fieldName = fieldName
-
 }
 
-func (d *GPSDimension) getInitialBoundaries() anonmodel.Boundary {
+func (d *gpsDimension) getInitialBoundaries() anonmodel.Boundary {
+	bound := anonmodel.NumericBoundary{
+		LowerBound:          nil,
+		LowerBoundInclusive: false,
+		UpperBound:          nil,
+		UpperBoundInclusive: false,
+	}
 	return &anonmodel.GPSBoundary{
-		Latitude: 	numericDimension.getInitialBoundaries()
-		Longitude:	numericDimension.getInitialBoundaries()
-		isGlobal: 	true
+		Latitude:  bound,
+		Longitude: bound,
 	}
 }
 
-func (d *GPSDimension)getZeroCut(){
-	//Lat
-	//find max diff ->minden alatta +360
-}
-
-func (d *GPSDimension) getDimensionForStatistics(stat interface{}, firstRun bool) mondrianDimension {
-	Latitude.getDimensionForStatistics().
-	Longitude.getDimensionForStatistics()
-}
-
-
-
-func (d *GPSDimension) tryGetAllowableCut(k int, partition anonmodel.Partition, count int) (bool, anonmodel.Partition, anonmodel.Partition, error) {
-	LatRange = d.currentArea.Latitude.max-d.currentArea.Latitude.min
-	LonRange = d.currentArea.Longitude.max-d.currentArea.Longitude.min
-	var Arr [2]string
-	if LonRange> LatRange{
-		Arr[0] ="Longitude"
-		Arr[1] ="Latitude"  
+func (d *gpsDimension) getDimensionForStatistics(stat interface{}, firstRun bool) mondrianDimension {
+	if firstRun {
+		d.originalRange = stat.(anonmodel.GPSArea)
 	}
-	else{
-		Arr[0] ="Latitude"
-		Arr[1] ="Longitude"  
+	return &gpsDimension{
+		anonCollectionName: d.anonCollectionName,
+		fieldName:          d.fieldName,
+		originalRange:      d.originalRange,
+		currentRange:       stat.(anonmodel.GPSArea),
 	}
-	for _, LL:=Arr{
-		bool ok;
-		ok, anonmodel.Partition, anonmodel.Partition, error = getCut(k, partition, "LL", count)
-		if(ok&&(err==nil))
-			return
-	}	
-	return
 }
 
-func (d *GPSDimension) getCut(k int, partition anonmodel.Partition, LL string, count int) (bool, anonmodel.Partition, anonmodel.Partition, error) {
-	
+func prep(r *anonmodel.NumericRange, b *anonmodel.NumericBoundary) {
+	if b.LowerBound == nil || r.Min > *b.LowerBound {
+		b.LowerBound = &r.Min
+		b.LowerBoundInclusive = true
+	}
+	if b.UpperBound == nil || r.Max < *b.UpperBound {
+		b.UpperBound = &r.Max
+		b.UpperBoundInclusive = true
+	}
 }
 
-
-func (d *GPSDimension) prepare(partition anonmodel.Partition, count int) {
-
+func (d *gpsDimension) prepare(partition anonmodel.Partition, count int) {
+	boundary := partition[d.fieldName].(*anonmodel.GPSBoundary)
+	prep(&d.currentRange.Latitude, &boundary.Latitude)
+	prep(&d.currentRange.Longitude, &boundary.Longitude)
 }
+
+func (d *gpsDimension) getNormalizedRange() float64 {
+	return d.currentRange.GetRelativeArea(&d.originalRange)
+}
+
+func (d *gpsDimension) tryGetAllowableCut(k int, partition anonmodel.Partition, count int) (bool, anonmodel.Partition, anonmodel.Partition, error) {
+	if d.currentRange.Latitude.GetNormalizedRange(&anonmodel.NumericRange{Min: -90, Max: 90}) > d.currentRange.Longitude.GetNormalizedRange(&anonmodel.NumericRange{Min: -90, Max: 90}) {
+		yes, left, right, err := d.cutLatitude(k, partition, count)
+		if yes {
+			return yes, left, right, err
+		}
+		return d.cutLongitude(k, partition, count)
+	}
+	yes, left, right, err := d.cutLongitude(k, partition, count)
+	if yes {
+		return yes, left, right, err
+	}
+	return d.cutLatitude(k, partition, count)
+}
+
+func (d *gpsDimension) cutLatitude(k int, partition anonmodel.Partition, count int) (bool, anonmodel.Partition, anonmodel.Partition, error) {
+	if d.currentRange.Latitude.Max == d.currentRange.Latitude.Min {
+		return false, nil, nil, nil
+	}
+	median, err := anondb.GetMedian(d.anonCollectionName, d.fieldName+".latitude", partition, count)
+	if err != nil {
+		return false, nil, nil, err
+	}
+
+	left := partition.Clone()
+	leftBoundary := left[d.fieldName+".latitude"].(*anonmodel.GPSBoundary)
+	leftBoundary.Latitude.UpperBound = &median
+	leftBoundary.Latitude.UpperBoundInclusive = false
+	if count, err := anondb.GetCount(d.anonCollectionName, left); err != nil {
+		return false, nil, nil, err
+	} else if count < k {
+		return false, nil, nil, nil
+	}
+
+	right := partition.Clone()
+	rightBoundary := right[d.fieldName+".latitude"].(*anonmodel.GPSBoundary)
+	rightBoundary.Latitude.LowerBound = &median
+	if leftBoundary.Latitude.LowerBound != nil && *leftBoundary.Latitude.LowerBound == *leftBoundary.Latitude.UpperBound {
+		rightBoundary.Latitude.LowerBoundInclusive = false
+	} else {
+		rightBoundary.Latitude.LowerBoundInclusive = true
+	}
+	if count, err := anondb.GetCount(d.anonCollectionName, right); err != nil {
+		return false, nil, nil, err
+	} else if count < k {
+		return false, nil, nil, nil
+	}
+
+	return true, left, right, nil
+	return false, nil, nil, nil
+}
+
+func (d *gpsDimension) cutLongitude(k int, partition anonmodel.Partition, count int) (bool, anonmodel.Partition, anonmodel.Partition, error) {
+	if d.currentRange.Longitude.Max == d.currentRange.Longitude.Min {
+		return false, nil, nil, nil
+	}
+	median, err := anondb.GetMedian(d.anonCollectionName, d.fieldName+".longitude", partition, count)
+	if err != nil {
+		return false, nil, nil, err
+	}
+
+	left := partition.Clone()
+	leftBoundary := left[d.fieldName+".longitude"].(*anonmodel.GPSBoundary)
+	leftBoundary.Longitude.UpperBound = &median
+	leftBoundary.Longitude.UpperBoundInclusive = false
+	if count, err := anondb.GetCount(d.anonCollectionName, left); err != nil {
+		return false, nil, nil, err
+	} else if count < k {
+		return false, nil, nil, nil
+	}
+
+	right := partition.Clone()
+	rightBoundary := right[d.fieldName+".longitude"].(*anonmodel.GPSBoundary)
+	rightBoundary.Longitude.LowerBound = &median
+	if leftBoundary.Longitude.LowerBound != nil && *leftBoundary.Longitude.LowerBound == *leftBoundary.Longitude.UpperBound {
+		rightBoundary.Longitude.LowerBoundInclusive = false
+	} else {
+		rightBoundary.Longitude.LowerBoundInclusive = true
+	}
+	if count, err := anondb.GetCount(d.anonCollectionName, right); err != nil {
+		return false, nil, nil, err
+	} else if count < k {
+		return false, nil, nil, nil
+	}
+
+	return true, left, right, nil
+	return false, nil, nil, nil
+}
+
+/**/

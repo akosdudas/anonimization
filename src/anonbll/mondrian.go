@@ -61,6 +61,8 @@ func (m *mondrian) createDimensions() error {
 			dimension = &numericDimension{}
 		case "prefix":
 			dimension = &prefixDimension{}
+		case "coords":
+			return fmt.Errorf("Unfinished type: coords")
 		default:
 			return fmt.Errorf("Not supprted field type: %v", field.Type)
 		}

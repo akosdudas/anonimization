@@ -2,6 +2,7 @@ package anonmodel
 
 import (
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -43,25 +44,28 @@ func (documents Documents) Validate() error {
 		return ErrValidation("No documents sent to upload")
 	}
 
-	for _, doc := range documents {
-		if err := doc.validate(); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
 // Convert convert the array of Documents into an array if interface{}s
-func (documents Documents) Convert(continuous bool) []interface{} {
+func (documents Documents) Convert(continuous bool, table map[string]TypeConversionfunc) []interface{} {
+	log.Println("converting documents:", len(documents))
 	result := make([]interface{}, len(documents))
 	for ix, document := range documents {
 		if continuous {
 			document["__pending"] = true
 		}
+		for key, value := range document {
+			log.Println(key, value)
+			if table[key] != nil {
+				log.Println(key, "found in table")
+				document[key], _ = table[key](value)
+			} else {
+				log.Println(key, "not in table")
+			}
+		}
 		result[ix] = document
 	}
-
 	return result
 }
 

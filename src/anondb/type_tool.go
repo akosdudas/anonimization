@@ -1,25 +1,22 @@
 package anondb
 
-type TypeConversionfunc func(string)(interface{}, error)
+import (
+	"anonmodel"
+	"log"
+)
 
-//Conversionfunc map[string] typeConversionfunc
-
-/*
-func (table TypeConversionTable)Convert(fieldName string, value string)interface{}, err error{
-	if table[fieldName] != nil
-		return table[fieldName](value), nil
-	return value, nil
-}
-*/
-
-func MakeTypeConversionTable(datasetName string) (table map[string]typeConversionfunc, err error){
+//MakeTypeConversionTable   asdasd
+func MakeTypeConversionTable(datasetName string) (table map[string]anonmodel.TypeConversionfunc, err error) {
+	table = make(map[string]anonmodel.TypeConversionfunc, 0)
 	dataset, e := GetDataset(datasetName)
 	log.Println(e)
 	for _, field := range dataset.Fields {
-		if(field.Type) == "coords"
-			table[field.Name], err := anonbll.PreprocessCoord
-		if(err!= nil)
+		if field.Type == "coords" {
+			table[field.Name] = PreprocessCoord
+		}
+		if err != nil {
 			return
+		}
 	}
 	return
 }
