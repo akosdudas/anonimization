@@ -39,11 +39,13 @@ func (m *mondrian) initialize(dataset *anonmodel.Dataset, anonCollectionName str
 
 func (m *mondrian) anonymize() error {
 	if err := anondb.CreateIndices(m.anonCollectionName, m.fields); err != nil {
+
 		return err
 	}
 	defer anondb.DropIndices(m.anonCollectionName, m.fields)
 
 	if err := m.createDimensions(); err != nil {
+
 		return err
 	}
 
@@ -62,7 +64,7 @@ func (m *mondrian) createDimensions() error {
 		case "prefix":
 			dimension = &prefixDimension{}
 		case "coords":
-			return fmt.Errorf("Unfinished type: coords")
+			dimension = &gpsDimension{}
 		default:
 			return fmt.Errorf("Not supprted field type: %v", field.Type)
 		}
@@ -85,6 +87,7 @@ func (m *mondrian) getInitialPartition() anonmodel.Partition {
 func (m *mondrian) anonymizePartition(partition anonmodel.Partition, firstRun bool) error {
 	count, statistics, err := anondb.GetDimensionStatistics(m.anonCollectionName, partition)
 	if err != nil {
+
 		return err
 	}
 
@@ -105,6 +108,7 @@ func (m *mondrian) anonymizePartition(partition anonmodel.Partition, firstRun bo
 
 	allowable, left, right, err := m.chooseDimension(currentDimensions, partition, count)
 	if err != nil {
+
 		return err
 	}
 	if !allowable {
@@ -112,6 +116,7 @@ func (m *mondrian) anonymizePartition(partition anonmodel.Partition, firstRun bo
 	}
 
 	if err := m.anonymizePartition(left, false); err != nil {
+
 		return err
 	}
 	return m.anonymizePartition(right, false)

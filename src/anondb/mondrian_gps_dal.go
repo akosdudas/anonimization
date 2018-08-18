@@ -2,6 +2,7 @@ package anondb
 
 import (
 	"anonmodel"
+	"log"
 
 	"github.com/globalsign/mgo/bson"
 )
@@ -29,17 +30,23 @@ func GetCoordStatistics(anonCollectionName string, fieldName string, partition a
 }
 
 func (b *gpsBoundary) setMatch(fieldName string, match *[]bson.M) {
+	session := globalSession.Copy()
+	defer session.Close()
+	anon := session.DB("anondb").C("data_test_set__")
+	c, _ := anon.Find(bson.M{"$and": *match}).Count()
+	c1, _ := anon.Find(nil).Count()
+	log.Printf("%v / %v\n", c, c1)
 	lat, _ := convertBoundary(&(b.Latitude))
 	lat.setMatch(fieldName+".latitude", match)
 	lon, _ := convertBoundary(&(b.Longitude))
-	lon.setMatch(fieldName+".latitude", match)
+	lon.setMatch(fieldName+".longitude", match)
 }
 
 func (b *gpsBoundary) setAggregation(fieldName string, mainGroup bson.M, facets bson.M) {
-	mainGroup["min_"+fieldName+".latitude"] = bson.M{"$min": "$" + fieldName + ".latitude"}
-	mainGroup["max_"+fieldName+".latitude"] = bson.M{"$max": "$" + fieldName + ".latitude"}
-	mainGroup["min_"+fieldName+".longitude"] = bson.M{"$min": "$" + fieldName + ".longitude"}
-	mainGroup["max_"+fieldName+".longitude"] = bson.M{"$max": "$" + fieldName + ".longitude"}
+	mainGroup["__min_"+fieldName+"_latitude"] = bson.M{"$min": "$" + fieldName + ".latitude"}
+	mainGroup["__max_"+fieldName+"_latitude"] = bson.M{"$max": "$" + fieldName + ".latitude"}
+	mainGroup["__min_"+fieldName+"_longitude"] = bson.M{"$min": "$" + fieldName + ".longitude"}
+	mainGroup["__max_"+fieldName+"_longitude"] = bson.M{"$max": "$" + fieldName + ".longitude"}
 
 }
 
@@ -81,10 +88,22 @@ func GetEqDistribution(anonCollectionName string, fieldName string, partition an
 }
 
 func (b *gpsBoundary) getResult(fieldName string, mainGroupResult bson.M, queryResult bson.M) interface{} {
-	minLat := mainGroupResult["min_"+fieldName+".latitude"].(float64)
-	maxLat := mainGroupResult["max_"+fieldName+".latitude"].(float64)
-	minLon := mainGroupResult["min_"+fieldName+".longutide"].(float64)
-	maxLon := mainGroupResult["max_"+fieldName+".longutide"].(float64)
+	minLat, ok := mainGroupResult["__min_"+fieldName+"_latitude"].(float64)
+	if !ok {
+		log.Println("failed result")
+	}
+	maxLat, ok := mainGroupResult["__max_"+fieldName+"_latitude"].(float64)
+	if !ok {
+		log.Println("failed result")
+	}
+	minLon, ok := mainGroupResult["__min_"+fieldName+"_longitude"].(float64)
+	if !ok {
+		log.Println("failed result")
+	}
+	maxLon, ok := mainGroupResult["__max_"+fieldName+"_longitude"].(float64)
+	if !ok {
+		log.Println("failed result")
+	}
 	return anonmodel.GPSArea{
 		Latitude:  anonmodel.NumericRange{Min: minLat, Max: maxLat},
 		Longitude: anonmodel.NumericRange{Min: minLon, Max: maxLon},

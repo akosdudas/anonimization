@@ -2,7 +2,6 @@ package anondb
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"regexp"
 	"strings"
@@ -17,7 +16,6 @@ type GPSCoord struct {
 
 //PreprocessCoord ...
 func PreprocessCoord(coordIf interface{}) (coordI interface{}, err error) {
-	log.Println("preprocessing")
 	coordStr, yes := coordIf.(string)
 	if !yes {
 		return
@@ -28,7 +26,6 @@ func PreprocessCoord(coordIf interface{}) (coordI interface{}, err error) {
 	coord.Latitude = Latitude
 	coord.Longitude = Longitude
 	coordI = coord
-	log.Println("processed")
 	return
 }
 
@@ -45,7 +42,6 @@ func FindFormat(coord string) (format string) {
 	if match {
 		format = "DMS"
 	}
-	log.Println(format)
 	return
 }
 
