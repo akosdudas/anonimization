@@ -68,10 +68,7 @@ class UploadDataTest(common.CommonTest):
                 'name': 'message',
                 'mode': 'qid',
                 'type': 'prefix'
-            },
-				'name':'location',
-				'mode': 'qid',
-				'type': 'coords'
+            }
         ]
     }
 
