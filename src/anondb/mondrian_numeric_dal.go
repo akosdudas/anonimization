@@ -78,9 +78,7 @@ func GetMedian(anonCollectionName string, fieldName string, partition anonmodel.
 
 	value, ok := result[fieldName].(float64)
 	if !ok {
-		log.Printf("no result, count:%d, %v \n", count, value)
-		err = fmt.Errorf("No median")
-		return 0, err
+		return 0, fmt.Errorf("No median, (object recived)")
 	}
 	return value, nil
 }
