@@ -43,11 +43,11 @@ Az algirutmos célja egy olyan adatbázis építése szerver oldalon, melyben mi
 * Ha a kliens talál egy olyan eklivalencia osztály, ami illeszkedik a feltöltendő adataira, de abban még nincs legalább k db elem (ekkor ténylegesen még 0 elem lesz az adott eklivalencia osztályba feltöltve, hiszen különben sérülne a k-anonimitás feltétele), akkor a feltöltéssel várnia kell. A kliens jelzi a szervernek a feltöltési igényét (az eklivalencia osztály azonosítójának megadásával), a szerver pedig minden eklivalencia osztályhoz nyilvántartja a feltöltési igények számát. Amennyiben az igények száma valamely osztálynál eléri a k értéket, akkor a szerver jelzi a klienseknek (erről részletesebben később), hogy megkezdhetik a feltöltést, akik erre egyszerre feltöltik az adataikat az eklivalencia osztályba, ahol ennek hatására már legalább k db elem lesz.
 * Ha a kliens által generált adatokra egyetlen eklivalencia osztály sem illeszkedik, akkor a kliens generál egyet, és azt (az érzékeny adatk nélkül) felküldi a szerverre. Ilyenkor a szerver menti az eklivalencia osztályt, és a feltöltési igények számát 1-re állítja (az azt létrehozó kliens biztos akar adatot küldeni). Ezután a kliens az előző esethez hasonlóan addig vár, amígy legalább k darab feltöltési igény össze nem gyűlik.
 
-![Anonimization](/img/anonimization.png)
+![Anonimization](img/anonimization.png)
 
 ## Az működés részletei
 
-![Loop](/img/loop.png)
+![Loop](img/loop.png)
 
 TODO:
 * Eklivalencia osztályok finomítása (felmerülő problémák)
