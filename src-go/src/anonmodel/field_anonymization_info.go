@@ -4,9 +4,10 @@ import "fmt"
 
 // FieldAnonymizationInfo stores how each data field should be handled during anonymization
 type FieldAnonymizationInfo struct {
-	Name string `json:"name" bson:"name"`
-	Mode string `json:"mode" bson:"mode"`
-	Type string `json:"type" bson:"type"`
+	Name         string  `json:"name" bson:"name"`
+	Mode         string  `json:"mode" bson:"mode"`
+	Type         string  `json:"type" bson:"type"`
+	PreferedSize float64 `json:"preferedSize" bson:"preferedSize"`
 }
 
 func (fieldInfo *FieldAnonymizationInfo) validate() error {
@@ -14,8 +15,8 @@ func (fieldInfo *FieldAnonymizationInfo) validate() error {
 		return err
 	}
 
-	if fieldInfo.Mode != "id" && fieldInfo.Mode != "qid" && fieldInfo.Mode != "keep" && fieldInfo.Mode != "drop" {
-		return fmt.Errorf("Field 'mode' should be one of 'id', 'qid', 'keep' or 'drop', got '%v'", fieldInfo.Mode)
+	if fieldInfo.Mode != "id" && fieldInfo.Mode != "qid" && fieldInfo.Mode != "keep" && fieldInfo.Mode != "cat" && fieldInfo.Mode != "int" && fieldInfo.Mode != "drop" {
+		return fmt.Errorf("Field 'mode' should be one of 'id', 'qid', 'cat', 'int', 'keep' or 'drop', got '%v'", fieldInfo.Mode)
 	}
 
 	if fieldInfo.Mode == "qid" && fieldInfo.Type != "numeric" && fieldInfo.Type != "prefix" && fieldInfo.Type != "coords" {
@@ -44,6 +45,32 @@ func GetQuasiIdentifierFields(fieldInfos []FieldAnonymizationInfo) []FieldAnonym
 
 	for _, fieldInfo := range fieldInfos {
 		if fieldInfo.Mode == "qid" {
+			result = append(result, fieldInfo)
+		}
+	}
+
+	return result
+}
+
+// Gets the fields that are specified as categoric quasi identifiers
+func GetCategoricFields(fieldInfos []FieldAnonymizationInfo) []FieldAnonymizationInfo {
+	var result []FieldAnonymizationInfo
+
+	for _, fieldInfo := range fieldInfos {
+		if fieldInfo.Mode == "cat" {
+			result = append(result, fieldInfo)
+		}
+	}
+
+	return result
+}
+
+// Gets the fields that are specified as interval quasi identifiers
+func GetIntervalFields(fieldInfos []FieldAnonymizationInfo) []FieldAnonymizationInfo {
+	var result []FieldAnonymizationInfo
+
+	for _, fieldInfo := range fieldInfos {
+		if fieldInfo.Mode == "int" {
 			result = append(result, fieldInfo)
 		}
 	}

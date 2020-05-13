@@ -46,7 +46,7 @@ func (documents Documents) Validate() error {
 	return nil
 }
 
-// Convert convert the array of Documents into an array if interface{}s
+// Convert convert the array of Documents into an array of interface{}s
 func (documents Documents) Convert(continuous bool, table map[string]TypeConversionfunc) []interface{} {
 	result := make([]interface{}, len(documents))
 	for ix, document := range documents {

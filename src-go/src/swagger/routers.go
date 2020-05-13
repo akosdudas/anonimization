@@ -98,6 +98,12 @@ var routes = []route{
 		Pattern:     "/v1/datasets/{name}",
 		HandlerFunc: datasetsNamePut,
 	},
+	route{
+		Name:        "AddFieldToDataset",
+		Method:      strings.ToUpper("Put"),
+		Pattern:     "/v1/datasets/{name}/update",
+		HandlerFunc: updateDataset,
+	},
 
 	route{
 		Name:        "UploadPost",
@@ -111,5 +117,61 @@ var routes = []route{
 		Method:      strings.ToUpper("Post"),
 		Pattern:     "/v1/upload/{sessionId}",
 		HandlerFunc: uploadSessionIDPost,
+	},
+
+	route{
+		Name:        "UploadToEqulivalenceClassPost",
+		Method:      strings.ToUpper("Post"),
+		Pattern:     "/v1/upload/{sessionId}/{classId}",
+		HandlerFunc: uploadDocumentToEqulivalenceClass,
+	},
+
+	route{
+		Name:        "CreateEqulivalenceClass",
+		Method:      strings.ToUpper("Post"),
+		Pattern:     "/v1/classes",
+		HandlerFunc: createEqulivalenceClass,
+	},
+
+	route{
+		Name:        "ListClasses",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v1/classes",
+		HandlerFunc: getAllEqulivalenceClasses,
+	},
+
+	route{
+		Name:        "GetMatchingClasses",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v1/classes/matching",
+		HandlerFunc: getMatchingEqulivalenceClasses,
+	},
+
+	route{
+		Name:        "GetClass",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v1/classes/{id}",
+		HandlerFunc: getEqulivalenceClassById,
+	},
+
+	route{
+		Name:        "DeleteClass",
+		Method:      strings.ToUpper("Delete"),
+		Pattern:     "/v1/classes/{id}",
+		HandlerFunc: deleteEqulivalenceClassById,
+	},
+
+	route{
+		Name:        "CentralTableContains",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v1/central/{id}",
+		HandlerFunc: centralTableContainsClass,
+	},
+
+	route{
+		Name:        "RegisterUploadIntent",
+		Method:      strings.ToUpper("Put"),
+		Pattern:     "/v1/classes/{dataset}/{id}",
+		HandlerFunc: registerUploadIntent,
 	},
 }

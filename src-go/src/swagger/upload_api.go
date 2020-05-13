@@ -13,9 +13,9 @@ import (
 	"anonbll"
 	"anondb"
 	"anonmodel"
-	"net/http"
-
 	"github.com/gorilla/mux"
+	"net/http"
+	"strconv"
 )
 
 func uploadPost(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +68,35 @@ func uploadSessionIDPost(w http.ResponseWriter, r *http.Request) {
 		}
 		if err != nil {
 			response.Error = err.Error()
+		}
+		respondWithJSON(w, http.StatusOK, &response)
+	}
+}
+
+func uploadDocumentToEqulivalenceClass(w http.ResponseWriter, r *http.Request) {
+	var document anonmodel.Document
+	if !tryReadRequestBody(r, &document, w) {
+		return
+	}
+
+	vars := mux.Vars(r)
+
+	// Parsing id
+	class, parseErr := strconv.Atoi(vars["classId"])
+	if parseErr != nil {
+		respondWithError(w, http.StatusBadRequest, "Unable to parse equlivalence class id.")
+		return
+	}
+
+	successful, message := anonbll.UploadDocumentToEqulivalenceClass(vars["sessionId"], document, class)
+	if !successful {
+		respondWithError(w, http.StatusBadRequest, message)
+
+	} else {
+		response := UploadResponse{
+			InsertSuccessful:   successful,
+			FinalizeSuccessful: successful,
+			Error:              message,
 		}
 		respondWithJSON(w, http.StatusOK, &response)
 	}

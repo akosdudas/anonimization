@@ -11,9 +11,9 @@ package swagger
 
 import (
 	"anondb"
-	"net/http"
-
+	"anonmodel"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func datasetsGet(w http.ResponseWriter, r *http.Request) {
@@ -63,8 +63,24 @@ func datasetsNamePut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := anondb.CreateDataset(&dataset); err != nil {
-		handleDBDuplicate(err, w, http.StatusConflict, "A dataset with the specified name already exists.")
+		handleDBDuplicate(err, w, http.StatusConflict, "Error: A dataset with the specified name already exists.")
 	} else {
 		respondWithJSON(w, http.StatusCreated, createDatasetResponse(&dataset))
 	}
+}
+
+func updateDataset(w http.ResponseWriter, r *http.Request) {
+	var request anonmodel.FieldAnonymizationInfo
+	if !tryReadRequestBody(r, &request, w) {
+		return
+	}
+
+	vars := mux.Vars(r)
+	dataset, err := anondb.UpdateDataset(vars["name"], request)
+
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+	}
+
+	respondWithJSON(w, http.StatusCreated, dataset)
 }
