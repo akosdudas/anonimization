@@ -9,7 +9,7 @@ GDPR által előírt követelményeknek. Ezen kívül teljes bizalom szükséges
 
 ## Az alkalmazásban használt alapfogalmak
 ### Adathalmaz (dataset)
-Az alkalmazás párhuzamosan több adathalmaz anonimizálását és tárolását támogatja. Egy adathalmazhoz tartozó adatokat egy dataset fogja össze. Adathalmaz szinten állíthatók be az anonimizálási paraméterek (erről később), valamint az adathalmaz létrehozásakor adhatjuk meg annak sémáját, azaz a benne található attribútumokat és azok típusait.
+Az alkalmazás párhuzamosan több adathalmaz anonimizálását és tárolását támogatja. Egy adathalmazhoz tartozó adatokat egy dataset fogja össze. Adathalmaz szinten állíthatók be az anonimizálási paraméterek (erről később), valamint az adathalmaz létrehozásakor adhatjuk meg annak sémáját, azaz a benne található attribútumokat és azok típusait. Az adathalmaz sémája később új attribútumok felvételével tovább bővíthető.
 
 ### Attribútumok
 Az alkalmazás különböző típusú mezőket (attribútumokat) kezel. Egy attribútum besorolása a megfelelő kategóriába tervezői döntés, melyet az szerver oldali adatbázis (a programban dataset) sémájának meghatározásakor kell megadni. Az alkalmazás az alábbi típusú attribútumokat különbözteti meg:
@@ -38,3 +38,22 @@ Például az alábbi 2-anonim adatbázisban (amennyiben az életkort és a nemet
 Egy k-anonim adatbázisban minden eklivalencia osztály számossága legalább k.
 
 ## Az algoritmus működése
+Az algirutmos célja egy olyan adatbázis építése szerver oldalon, melyben minden eklivalencia osztály legalább k-elemet tartalmaz. Ezáltal az adatbázis k-anonimitása minden pillanatban garantált lesz. Kliens oldali anonimizálás esetén a klienseket önálló ágenseknek tekintjük, melyek adatokat gyűjtenek. Amennyiben a kliensek rendelkezésre áll felküldendő adat, megpróbálja azt elhelyezni a szerveren található eklivalencia osztályok valamelyikében. Ehhez először lekérdezi a szerveren található eklivalenci osztályokat, majd megnézi, hogy az anonimizálandó adatot beleillik-e valamelyik osztályba. 
+* Amennyiben talál olyan eklivalencia osztályt, melyben már van legalább k db elem, akkor egyszerűen abba az osztályba kell feltöltenie a keletkezett szenzitív adatokat. Ezt a kiválasztott eklivalencia osztály egyedi azonosítójának megadásával és a szenzitív adatok feltöltésével teszi meg.
+* Ha a kliens talál egy olyan eklivalencia osztály, ami illeszkedik a feltöltendő adataira, de abban még nincs legalább k db elem (ekkor ténylegesen még 0 elem lesz az adott eklivalencia osztályba feltöltve, hiszen különben sérülne a k-anonimitás feltétele), akkor a feltöltéssel várnia kell. A kliens jelzi a szervernek a feltöltési igényét (az eklivalencia osztály azonosítójának megadásával), a szerver pedig minden eklivalencia osztályhoz nyilvántartja a feltöltési igények számát. Amennyiben az igények száma valamely osztálynál eléri a k értéket, akkor a szerver jelzi a klienseknek (erről részletesebben később), hogy megkezdhetik a feltöltést, akik erre egyszerre feltöltik az adataikat az eklivalencia osztályba, ahol ennek hatására már legalább k db elem lesz.
+* Ha a kliens által generált adatokra egyetlen eklivalencia osztály sem illeszkedik, akkor a kliens generál egyet, és azt (az érzékeny adatk nélkül) felküldi a szerverre. Ilyenkor a szerver menti az eklivalencia osztályt, és a feltöltési igények számát 1-re állítja (az azt létrehozó kliens biztos akar adatot küldeni). Ezután a kliens az előző esethez hasonlóan addig vár, amígy legalább k darab feltöltési igény össze nem gyűlik.
+
+![Anonimization](/img/anonimization.png)
+
+## Az működés részletei
+
+![Loop](/img/loop.png)
+
+TODO:
+* Eklivalencia osztályok finomítása (felmerülő problémák)
+* Központi tábla (epszilon érték)
+* EO generálás
+
+## Konfigurációs lehetőségek
+
+## A kliens működése
