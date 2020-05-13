@@ -28,7 +28,7 @@ docker-compose down –v
 
 ## Az alkalmazás által támogatott anonimizálási módok
 * Szerver oldali folyamatos anonimizálás mondrian algoritmussal
-* [Kliens oldali anonimizálás](Kliens oldali anonimizálás.md)
+* [Kliens oldali anonimizálás](Kliens_oldali_anonimizalas.md)
 
 ## INTEGRÁCIÓS TESZT FUTTATÁSA
 
