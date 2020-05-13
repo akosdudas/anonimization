@@ -26,6 +26,10 @@ Amennyiben le szeretnénk állítani az eszközt, a következő parancsot kell k
 docker-compose down –v
 ```
 
+## Az alkalmazás által támogatott anonimizálási módok
+* Szerver oldali folyamatos anonimizálás mondrian algoritmussal
+* [Kliens oldali anonimizálás](Kliens oldali anonimizálás.md)
+
 ## INTEGRÁCIÓS TESZT FUTTATÁSA
 
 Az integrációs teszt futtatásához először bizonyosodjunk meg róla, hogy fut az anonimizáló eszköz. Ezután a korábbiakhoz hasonlóan navigáljunk el PowerShell segítségével a mellékletben található következő mappába: AnonymizationServer\tests\IntegrationTest. Ebben a mappában a következő parancsot adjuk ki.
