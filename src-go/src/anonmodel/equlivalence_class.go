@@ -10,6 +10,7 @@ type EqulivalenceClass struct {
 	Count               int
 	IntentCount         int
 	Active              bool
+	LastSplit           int
 }
 
 func (e EqulivalenceClass) Print() {

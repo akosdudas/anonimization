@@ -100,14 +100,30 @@ func UploadDocumentToEqulivalenceClass(sessionID string, document anonmodel.Docu
 func splitEqulivalenceClass(class *anonmodel.EqulivalenceClass) {
 	var lowerInterval = make(map[string]anonmodel.NumericRange)
 	var upperInterval = make(map[string]anonmodel.NumericRange)
+
+	var i = 0
+	var selected = ""
+
 	// Foreach
 	for key, value := range class.IntervalAttributes {
-		half := value.Max / 2
-		lowerInterval[key] = anonmodel.NumericRange{Min: value.Min, Max: half}
-		upperInterval[key] = anonmodel.NumericRange{Min: half, Max: value.Max}
+		lowerInterval[key] = anonmodel.NumericRange{Min: value.Min, Max: value.Max}
+		upperInterval[key] = anonmodel.NumericRange{Min: value.Min, Max: value.Max}
+
+		if i == (class.LastSplit % len(class.IntervalAttributes)) {
+			selected = key
+		}
+		i++
 	}
-	var lowerClass = anonmodel.EqulivalenceClass{IntervalAttributes: lowerInterval, CategoricAttributes: class.CategoricAttributes, Active: true}
-	var upperClass = anonmodel.EqulivalenceClass{IntervalAttributes: upperInterval, CategoricAttributes: class.CategoricAttributes, Active: true}
+
+	var lastSplit = class.LastSplit + 1
+
+	selectedValue := class.IntervalAttributes[selected]
+	half := (selectedValue.Max - selectedValue.Min) / 2
+	lowerInterval[selected] = anonmodel.NumericRange{Min: selectedValue.Min, Max: half}
+	upperInterval[selected] = anonmodel.NumericRange{Min: half, Max: selectedValue.Max}
+
+	var lowerClass = anonmodel.EqulivalenceClass{IntervalAttributes: lowerInterval, CategoricAttributes: class.CategoricAttributes, Active: true, LastSplit: lastSplit}
+	var upperClass = anonmodel.EqulivalenceClass{IntervalAttributes: upperInterval, CategoricAttributes: class.CategoricAttributes, Active: true, LastSplit: lastSplit}
 
 	anondb.CreateEqulivalenceClass(&lowerClass)
 	anondb.CreateEqulivalenceClass(&upperClass)
