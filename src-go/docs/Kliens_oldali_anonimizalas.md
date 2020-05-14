@@ -83,7 +83,7 @@ Magasság | Életkor
 Ennek a módnak a használata abban az esetben javasolt, ha azonos intervallum méretű eklivalencia osztályokat akarunk létrehozni vagy az adott intervallum korlátai előre nem ismertek.
 
 ## Technológiák
-A megvalósítás során felhasznált technológiák [itt](docs/Tech.md) találhatók.
+A megvalósítás során felhasznált technológiák [itt](Tech.md) találhatók.
 
 ## Konfigurációs lehetőségek
 ### Dataset beállításai
