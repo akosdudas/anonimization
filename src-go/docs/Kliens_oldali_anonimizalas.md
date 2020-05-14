@@ -117,4 +117,5 @@ Minden attribútumra külön-külön az alábbi beállítások adhatók meg:
 A Proof-Of-Concept jelleggel, .Net Core platformon elkészített kliens két projektből épül fel.
 * **Anonimization:** Az anonimizáláshoz szükséges modell és service osztályok valamint a Refit könyvtár felhasználásával készített REST kliens. Az újrafelhasználhatóság érdekében ezt a projektet Class Library-ként valósítottam meg.
 * **AnonimizationClient:** A fent leírt Class library-t használó konzolos alkalmazás, ami bemutató jelleggel néhány előre beégetett dokumentum anonimizálását végzi el.
+
 Mivel a megvalósított algoritmusban több kliens, egymástól függetlenül végezhet anonimizálásokat, illetve egymástól függetlenül jelezheti az adatfeltöltési igényeit a szerver felé, így ezt egy többszálú alkalmazással modelleztem. A kipróbálhatóság érdekében a kliens a központi tábla lekérdezése után (amennyiben az tartalmazza a keresett eklivalencia osztályt) nem vár a szerver által kitűzött időpontig, hanem egyből megkezdi a szenzitív adatainak feltöltését a kiválasztott eklivalencia osztályba.
