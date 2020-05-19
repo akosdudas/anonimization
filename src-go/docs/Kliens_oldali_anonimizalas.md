@@ -22,9 +22,9 @@ Az alkalmazás különböző típusú mezőket (attribútumokat) kezel. Egy attr
 ### K-anonimitás
 Egy anonimizált adatbázisról akkor mondjuk, hogy k-anonim, ha a benne található kvázi azonosító értékek bármely konkrét előfordulása esetén van még legalább k-1 db rekord, melyben ugyanazok a kvázi azonosító értékek fordulnak elő. Azaz bármely rekordhoz van még k-1 db hasonló rekord, abban az értelemben, hogy a kvázi azonosító értékeik megegyeznek.
 
-### Eklivalencia osztály
-A fent megadott k-anonimitás definícióban az azonos attribútum értékekkel rendelkező rekordok egy eklivalencia osztályt alkotnak. Ekkor külön eklivalencia osztályt határoznak meg az adatbázis sémájában található kvázi azonosítók lehetséges értékeinek kombinációi. 
-Például az alábbi 2-anonim adatbázisban (amennyiben az életkort és a nemet tekintjük kvázi azonosítónak) eklivalencia osztályt alkotnak az 1.-2., a 3.-4 és az 5.-6. rekordok.
+### Ekvivalencia osztály
+A fent megadott k-anonimitás definícióban az azonos attribútum értékekkel rendelkező rekordok egy ekvivalencia osztályt alkotnak. Ekkor külön ekvivalencia osztályt határoznak meg az adatbázis sémájában található kvázi azonosítók lehetséges értékeinek kombinációi. 
+Például az alábbi 2-anonim adatbázisban (amennyiben az életkort és a nemet tekintjük kvázi azonosítónak) ekvivalencia osztályt alkotnak az 1.-2., a 3.-4 és az 5.-6. rekordok.
 
 Életkor | Nem | Tesztpontszám 
 ------------ | ------------- | -------------
@@ -35,36 +35,36 @@ Például az alábbi 2-anonim adatbázisban (amennyiben az életkort és a nemet
 14 | Férfi | 82
 14 | Férfi | 85
 
-Egy k-anonim adatbázisban minden eklivalencia osztály számossága legalább k. Az algoritmus működése során az intervallum attribútumokhoz az eklivalencia osztályokban nem egy konkrét érték tartozik, hanem egy alsó és felső korlátokkal adott intervallum. Például az életkorra vonatkozó eklivalencia osztályok lehetnek az alábbiak: 
+Egy k-anonim adatbázisban minden ekvivalencia osztály számossága legalább k. Az algoritmus működése során az intervallum attribútumokhoz az ekvivalencia osztályokban nem egy konkrét érték tartozik, hanem egy alsó és felső korlátokkal adott intervallum. Például az életkorra vonatkozó ekvivalencia osztályok lehetnek az alábbiak: 
 
-Eklivalencia osztály id | Életkor
+Ekvivalencia osztály id | Életkor
 ------------ | -------------
 1 | 0 - 18
 2 | 19 - 64
 3 | 65 - 100
 
 ## Az algoritmus alapvető működése
-Az algoritmus célja egy olyan adatbázis építése szerver oldalon, melyben minden eklivalencia osztály legalább k-elemet tartalmaz. Ezáltal az adatbázis k-anonimitása minden pillanatban garantált lesz. Kliens oldali anonimizálás esetén a klienseket önálló ágenseknek tekintjük, melyek adatokat gyűjtenek. Amennyiben a kliensek rendelkezésre áll felküldendő adat, megpróbálja azt elhelyezni a szerveren található eklivalencia osztályok valamelyikében. Ehhez először lekérdezi a szerveren található eklivalencia osztályokat, majd megnézi, hogy az anonimizálandó adat beleillik-e valamelyik osztályba. 
-* Amennyiben talál olyan eklivalencia osztályt, melyben már van legalább k db elem, akkor egyszerűen abba az osztályba kell feltöltenie a keletkezett szenzitív adatokat. Ezt a kiválasztott eklivalencia osztály egyedi azonosítójának megadásával és a szenzitív adatok feltöltésével teszi meg.
-* Ha a kliens talál egy olyan eklivalencia osztályt, ami illeszkedik a feltöltendő adataira, de abban még nincs legalább k db elem (ekkor ténylegesen még 0 elem lesz az adott eklivalencia osztályba feltöltve, hiszen különben sérülne a k-anonimitás feltétele), akkor a feltöltéssel várnia kell. A kliens jelzi a szervernek a feltöltési igényét (az eklivalencia osztály azonosítójának megadásával), a szerver pedig minden eklivalencia osztályhoz nyilvántartja a feltöltési igények számát. Amennyiben az igények száma valamely osztálynál eléri a k értéket, akkor a szerver jelzi a klienseknek (erről részletesebben később), hogy megkezdhetik a feltöltést, akik erre egyszerre feltöltik az adataikat az eklivalencia osztályba, ahol ennek hatására már legalább k db elem lesz.
-* Ha a kliens által generált adatokra egyetlen eklivalencia osztály sem illeszkedik, akkor a kliens generál egyet, és azt (az érzékeny adatok nélkül) felküldi a szerverre. Ilyenkor a szerver menti az eklivalencia osztályt, és a feltöltési igények számát 1-re állítja (az azt létrehozó kliens biztos akar adatot küldeni). Ezután a kliens az előző esethez hasonlóan addig vár, amígy legalább k darab feltöltési igény össze nem gyűlik.
+Az algoritmus célja egy olyan adatbázis építése szerver oldalon, melyben minden ekvivalencia osztály legalább k-elemet tartalmaz. Ezáltal az adatbázis k-anonimitása minden pillanatban garantált lesz. Kliens oldali anonimizálás esetén a klienseket önálló ágenseknek tekintjük, melyek adatokat gyűjtenek. Amennyiben a kliensek rendelkezésre áll felküldendő adat, megpróbálja azt elhelyezni a szerveren található ekvivalencia osztályok valamelyikében. Ehhez először lekérdezi a szerveren található ekvivalencia osztályokat, majd megnézi, hogy az anonimizálandó adat beleillik-e valamelyik osztályba. 
+* Amennyiben talál olyan ekvivalencia osztályt, melyben már van legalább k db elem, akkor egyszerűen abba az osztályba kell feltöltenie a keletkezett szenzitív adatokat. Ezt a kiválasztott ekvivalencia osztály egyedi azonosítójának megadásával és a szenzitív adatok feltöltésével teszi meg.
+* Ha a kliens talál egy olyan ekvivalencia osztályt, ami illeszkedik a feltöltendő adataira, de abban még nincs legalább k db elem (ekkor ténylegesen még 0 elem lesz az adott ekvivalencia osztályba feltöltve, hiszen különben sérülne a k-anonimitás feltétele), akkor a feltöltéssel várnia kell. A kliens jelzi a szervernek a feltöltési igényét (az ekvivalencia osztály azonosítójának megadásával), a szerver pedig minden ekvivalencia osztályhoz nyilvántartja a feltöltési igények számát. Amennyiben az igények száma valamely osztálynál eléri a k értéket, akkor a szerver jelzi a klienseknek (erről részletesebben később), hogy megkezdhetik a feltöltést, akik erre egyszerre feltöltik az adataikat az ekvivalencia osztályba, ahol ennek hatására már legalább k db elem lesz.
+* Ha a kliens által generált adatokra egyetlen ekvivalencia osztály sem illeszkedik, akkor a kliens generál egyet, és azt (az érzékeny adatok nélkül) felküldi a szerverre. Ilyenkor a szerver menti az ekvivalencia osztályt, és a feltöltési igények számát 1-re állítja (az azt létrehozó kliens biztos akar adatot küldeni). Ezután a kliens az előző esethez hasonlóan addig vár, amígy legalább k darab feltöltési igény össze nem gyűlik.
 
 ![Anonimization](img/anonimization.png)
 
 ## Az működés részletei
 ### A várakozási ciklus
-Ha egy kliens adatot szeretne feltölteni egy még üres (például általa létrehozott) eklivalencia osztályba, akkor a k-anonimitás megtartása érdekében várakoznia kell, amíg másik legalább k-1 db kliens nem jelezte a feltöltési igényét ugyanabba az eklivalencia osztályba. Felmerülhet a kérdés, hogy honnan fogja tudni a kliens, hogy már összegyűlt-e a megfelelő számú igény. Ebben az implementációban erre szolgál a központi tábla. A szerver a publikusan elérhető (lekérdezhető) központi táblában tartja nyilván azoknak az eklivalencia osztályoknak az azonosítóit, melyekbe már legalább k db feltöltési igény érkezett. A kliens ciklikusan lekérdezi a központi tábla tartalmát (jelen implementációban csak egy konkrét eklivalencia osztály ID benne létére kérdez rá), és ha a központi tábla tartalmazza az eklivalecia osztályt, akkor a kliens megkezdheti a feltöltést. Valójában mivel a kliensek különböző időpontban kérdezik le a tábla tartalmát, így ekkor még különböző időpontban töltenék fel az adataikat. Ennek elkerülésére a központi tábla rekordjai tartalmaznak egy, a szerver által meghatározott (jövőbeli) időpontot is. A kliensek a központi tábla lekérdezésekor, ha megtalálták a keresett azonosítót, akkor eltárolják a hozzá tartozó időpontot, és abban az időpontban fogják megkezdeni a szenzitív adatok feltöltését.
+Ha egy kliens adatot szeretne feltölteni egy még üres (például általa létrehozott) ekvivalencia osztályba, akkor a k-anonimitás megtartása érdekében várakoznia kell, amíg másik legalább k-1 db kliens nem jelezte a feltöltési igényét ugyanabba az ekvivalencia osztályba. Felmerülhet a kérdés, hogy honnan fogja tudni a kliens, hogy már összegyűlt-e a megfelelő számú igény. Ebben az implementációban erre szolgál a központi tábla. A szerver a publikusan elérhető (lekérdezhető) központi táblában tartja nyilván azoknak az ekvivalencia osztályoknak az azonosítóit, melyekbe már legalább k db feltöltési igény érkezett. A kliens ciklikusan lekérdezi a központi tábla tartalmát (jelen implementációban csak egy konkrét ekvivalencia osztály ID benne létére kérdez rá), és ha a központi tábla tartalmazza az ekvivalecia osztályt, akkor a kliens megkezdheti a feltöltést. Valójában mivel a kliensek különböző időpontban kérdezik le a tábla tartalmát, így ekkor még különböző időpontban töltenék fel az adataikat. Ennek elkerülésére a központi tábla rekordjai tartalmaznak egy, a szerver által meghatározott (jövőbeli) időpontot is. A kliensek a központi tábla lekérdezésekor, ha megtalálták a keresett azonosítót, akkor eltárolják a hozzá tartozó időpontot, és abban az időpontban fogják megkezdeni a szenzitív adatok feltöltését.
 
 ![Loop](img/loop.png)
 
 ### Hálózati hibák kezelése
-A feltöltés időpontjában előfordulhat, hogy néhány kliens például hálózati hiba miatt nem képes az adatok feltöltésére. Ilyenkor sérülne az adatbázis k-anonimitása. Az ilyen esetekre került bevezetésre az adathalmaz definiálásakor megadható epszilon érték, melynek jelentősége, hogy a szerver nem k, hanem (k + epszilon) db feltöltési igényre vár, mielőtt közzéteszi az eklivalencia osztály azonosítóját a központi táblában. Így ha legfeljebb epszilon darab kliensnek nem is sikerül feltöltenie az adatait a megfelelő időpontban, az adatbázis k-anonimitása akkor is biztosítva marad.
+A feltöltés időpontjában előfordulhat, hogy néhány kliens például hálózati hiba miatt nem képes az adatok feltöltésére. Ilyenkor sérülne az adatbázis k-anonimitása. Az ilyen esetekre került bevezetésre az adathalmaz definiálásakor megadható epszilon érték, melynek jelentősége, hogy a szerver nem k, hanem (k + epszilon) db feltöltési igényre vár, mielőtt közzéteszi az ekvivalencia osztály azonosítóját a központi táblában. Így ha legfeljebb epszilon darab kliensnek nem is sikerül feltöltenie az adatait a megfelelő időpontban, az adatbázis k-anonimitása akkor is biztosítva marad.
 
-### Eklivalencia osztályok finomítása
-Ahhoz, hogy az adatok információtartalmát (a k-anonimitás megőrzése mellett) maximalizálni tudjuk, idővel érdemes lehet az eklivalencia osztályok méretének csökkentése. Minnél több és kisebb eklivalencia osztályunk van, annál nagyobb az adatok hasznossága, mivel annál pontosabban tudjuk egy adott szenzitív adathoz tartozó itervallum attribútumok értékét. Az eklivalencia osztályok elemszámának alacsonyan tartására a szerver két módot támogat:
-* A **szerver oldali eklivalencia osztály finomítás** esetében az algoritmus paraméterként megadható (**max** néven) maximális elemszámú eklivalencia osztályokat enged meg. Ha egy eklivalencia osztályba feltöltött adatok száma eléri ezt a maximális értéket, akkor az adott eklivalencia osztály inaktív lesz, azaz nem jelenik meg az eklivalencia osztályok listázásakor. Helyette a szerver két másik új eklivalencia osztályt hoz létre. Eklivalencia osztály finomításakor program választ egy intervallum attribútumot, és annak méretét megfelezve hozza létre a két új eklivalencia osztályt.
+### Ekvivalencia osztályok finomítása
+Ahhoz, hogy az adatok információtartalmát (a k-anonimitás megőrzése mellett) maximalizálni tudjuk, idővel érdemes lehet az ekvivalencia osztályok méretének csökkentése. Minnél több és kisebb ekvivalencia osztályunk van, annál nagyobb az adatok hasznossága, mivel annál pontosabban tudjuk egy adott szenzitív adathoz tartozó itervallum attribútumok értékét. Az ekvivalencia osztályok elemszámának alacsonyan tartására a szerver két módot támogat:
+* A **szerver oldali ekvivalencia osztály finomítás** esetében az algoritmus paraméterként megadható (**max** néven) maximális elemszámú ekvivalencia osztályokat enged meg. Ha egy ekvivalencia osztályba feltöltött adatok száma eléri ezt a maximális értéket, akkor az adott ekvivalencia osztály inaktív lesz, azaz nem jelenik meg az ekvivalencia osztályok listázásakor. Helyette a szerver két másik új ekvivalencia osztályt hoz létre. Ekvivalencia osztály finomításakor program választ egy intervallum attribútumot, és annak méretét megfelezve hozza létre a két új ekvivalencia osztályt.
 
-Például ha egy eklivalencia osztályt a magasság attribútum mentén bontunk ketté, akkor az alábbi eredményt kapjuk:
+Például ha egy ekvivalencia osztályt a magasság attribútum mentén bontunk ketté, akkor az alábbi eredményt kapjuk:
 
 Id | Magasság | Életkor | Aktív-e
 ------------ | ------------- | ------------- | -------------
@@ -72,15 +72,15 @@ Id | Magasság | Életkor | Aktív-e
 2 | 1 - 25 | 0 - 18 | Igen
 3 | 25 - 50 | 0 - 18 | Igen
 
-Ez jól működik mindaddig, amíg véges intervallumokat akarunk megfelezni. Mivel egy végtelen intervallumnak nem tudnánk, hogy hol van a felezőpontja, ezért a legelső eklivalenciaosztályt (és azokat is, amik ennek az intervallumain kívül esnek) mindenképp kliens oldalon kell létrehozni, és a szerverre feltölteni. Ezután már a szerver oldalon lehet újabb eklivalencia osztályokat generálni, ha valamely osztály mérete elérné a beállított maximum értéket.
+Ez jól működik mindaddig, amíg véges intervallumokat akarunk megfelezni. Mivel egy végtelen intervallumnak nem tudnánk, hogy hol van a felezőpontja, ezért a legelső ekvivalenciaosztályt (és azokat is, amik ennek az intervallumain kívül esnek) mindenképp kliens oldalon kell létrehozni, és a szerverre feltölteni. Ezután már a szerver oldalon lehet újabb ekvivalencia osztályokat generálni, ha valamely osztály mérete elérné a beállított maximum értéket.
 
-* A másik lehetőség egy **preferált intervallumméret megadása** minden intervallum atrribútumhoz. Ekkor az új eklivalencia osztályok generálása csak kliens oldalon történik. A kliens a dataset lekérdezésével hozzáfér az előre konfigurált preferált intervallumméretekhez, és adatait úgy általánosítja, hogy azok mindig a preferált méretű intervallumokba essenek. Például ha a preferált intervallumméretek a magasságra 20, az életkorra 5, akkor a magasság=200, életkor=49 konkrét értékeket a kliens például az alábbi módon általánosíthatja:
+* A másik lehetőség egy **preferált intervallumméret megadása** minden intervallum atrribútumhoz. Ekkor az új ekvivalencia osztályok generálása csak kliens oldalon történik. A kliens a dataset lekérdezésével hozzáfér az előre konfigurált preferált intervallumméretekhez, és adatait úgy általánosítja, hogy azok mindig a preferált méretű intervallumokba essenek. Például ha a preferált intervallumméretek a magasságra 20, az életkorra 5, akkor a magasság=200, életkor=49 konkrét értékeket a kliens például az alábbi módon általánosíthatja:
 
 Magasság | Életkor 
 ------------- | ------------- 
 190 - 210 | 45 - 50
 
-Ennek a módnak a használata abban az esetben javasolt, ha azonos intervallum méretű eklivalencia osztályokat akarunk létrehozni vagy az adott intervallum korlátai előre nem ismertek.
+Ennek a módnak a használata abban az esetben javasolt, ha azonos intervallum méretű ekvivalencia osztályokat akarunk létrehozni vagy az adott intervallum korlátai előre nem ismertek.
 
 ## Technológiák
 A megvalósítás során felhasznált technológiák [itt](Tech.md) találhatók.
@@ -88,11 +88,11 @@ A megvalósítás során felhasznált technológiák [itt](Tech.md) találhatók
 ## Konfigurációs lehetőségek
 ### Dataset beállításai
 Dataset létrehozásakor az alábbi beállítások adhatók meg:
-* max: A maximális eklivalencia osztály elemszám. (integer)
+* max: A maximális ekvivalencia osztály elemszám. (integer)
 * k: A k-anonimimitásnál használt k értéke. (integer)
 * e: Az epszilon érték, hogy k-nál mennyivel több igény érkezésére várjon a szerver. (integer)
 * algorithm: Az anonimizáláshoz használt algoritmus, lehetséges értékei:
-    * "client-side": A fent dokumentált kliens oldali anonimizálás, az eklivalencia osztályok szerver oldali finomításával.
+    * "client-side": A fent dokumentált kliens oldali anonimizálás, az ekvivalencia osztályok szerver oldali finomításával.
     * "client-side-custom": Kliens oldali anonimizálás, preferált intervallumméretekkel.
     * "mondrian": Szerver oldali anonimizálás, a Mondrian algoritmus használatával.
 * mode: Az anonimizálás módja, amely lehet folytonos vagy egyszeri. Kliens oldali anonimizáláshoz a folytonos módot kell választani. Értékei:
@@ -106,10 +106,10 @@ Minden attribútumra külön-külön az alábbi beállítások adhatók meg:
 * name: A mező neve. (string)
 * mode: A mező viselkedését adja meg az anonimizálás során. Lehetséges értékei:
     * "id": Egyedi azonosító, amit törölni kell.
-    * "qid": Kvázi azonosító, ezek alapján történik az eklivalencia osztályok kialakítása. (Csak szerver oldali anonimizáláshoz.)
+    * "qid": Kvázi azonosító, ezek alapján történik az ekvivalencia osztályok kialakítása. (Csak szerver oldali anonimizáláshoz.)
     * "keep": Szenzitív adat, a szerver nem anonimizálja, hanem változatlanul tartja meg.
-    * "cat": Intervallum típusú kvázi azonosító, az eklivalencia osztályokban intervallumként lesz anonimizálva. (Csak kliens oldali anonimizáláshoz.)
-    * "int": Kategorikus típusú kvázi azonosító, az eklivalencia osztályokban a konkrét értéke jelenik meg, tovább nem anonimizálható. (Csak kliens oldali anonimizáláshoz.)
+    * "cat": Intervallum típusú kvázi azonosító, az ekvivalencia osztályokban intervallumként lesz anonimizálva. (Csak kliens oldali anonimizáláshoz.)
+    * "int": Kategorikus típusú kvázi azonosító, az ekvivalencia osztályokban a konkrét értéke jelenik meg, tovább nem anonimizálható. (Csak kliens oldali anonimizáláshoz.)
 * type: A mező típusa. Kliens oldali anonimizálás esetén a "numeric" és a "string" támogatottak. Intervallum esetében szám típust kell megadni.
 * preferedSize: Az adott mező intervallumának preferált mérete. Csak "client-side-custom" módú anonimizálás esetén van jelentősége.
 
@@ -118,4 +118,4 @@ A Proof-Of-Concept jelleggel, .Net Core platformon elkészített kliens két pro
 * **Anonimization:** Az anonimizáláshoz szükséges modell és service osztályok valamint a Refit könyvtár felhasználásával készített REST kliens. Az újrafelhasználhatóság érdekében ezt a projektet Class Library-ként valósítottam meg.
 * **AnonimizationClient:** A fent leírt Class library-t használó konzolos alkalmazás, ami bemutató jelleggel néhány előre beégetett dokumentum anonimizálását végzi el.
 
-Mivel a megvalósított algoritmusban több kliens, egymástól függetlenül végezhet anonimizálásokat, illetve egymástól függetlenül jelezheti az adatfeltöltési igényeit a szerver felé, így ezt egy többszálú alkalmazással modelleztem. A kipróbálhatóság érdekében a kliens a központi tábla lekérdezése után (amennyiben az tartalmazza a keresett eklivalencia osztályt) nem vár a szerver által kitűzött időpontig, hanem egyből megkezdi a szenzitív adatainak feltöltését a kiválasztott eklivalencia osztályba.
+Mivel a megvalósított algoritmusban több kliens, egymástól függetlenül végezhet anonimizálásokat, illetve egymástól függetlenül jelezheti az adatfeltöltési igényeit a szerver felé, így ezt egy többszálú alkalmazással modelleztem. A kipróbálhatóság érdekében a kliens a központi tábla lekérdezése után (amennyiben az tartalmazza a keresett ekvivalencia osztályt) nem vár a szerver által kitűzött időpontig, hanem egyből megkezdi a szenzitív adatainak feltöltését a kiválasztott ekvivalencia osztályba.
